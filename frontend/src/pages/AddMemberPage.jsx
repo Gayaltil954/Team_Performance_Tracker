@@ -8,7 +8,10 @@ function AddMemberPage() {
 
   const handleAddMember = async (formData) => {
     try {
-      await addMember(formData);
+      const result = await addMember(formData);
+      if (!result?.success) {
+        return;
+      }
       setSuccessMessage(`${formData.name} has been successfully added to the team!`);
       setTimeout(() => {
         setSuccessMessage('');

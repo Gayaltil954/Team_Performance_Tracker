@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import MemberCard from '../components/MemberCard';
+import SortControls from '../components/SortControls';
 
 function ModernDropdown({ id, label, value, onSelect, options, placeholder }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -63,6 +64,7 @@ function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [scoreRangeFilter, setScoreRangeFilter] = useState('all');
+  const [sortMode, setSortMode] = useState('default');
 
   const roleOptions = [
     { value: 'all', label: 'All Roles' },
@@ -123,6 +125,13 @@ function Dashboard() {
     () => [...filteredMembers].sort((a, b) => b.score - a.score).slice(0, 3),
     [filteredMembers]
   );
+
+  const displayedMembers = useMemo(() => {
+    if (sortMode === 'top') {
+      return [...filteredMembers].sort((a, b) => b.score - a.score);
+    }
+    return filteredMembers;
+  }, [filteredMembers, sortMode]);
 
   const handleResetFilters = () => {
     setSearchQuery('');
@@ -204,6 +213,11 @@ function Dashboard() {
                 placeholder="Select score range"
               />
             </div>
+
+            <div className="mt-4">
+              <p className="mb-2 text-sm font-medium text-[#666666]">Sort members</p>
+              <SortControls mode={sortMode} onModeChange={setSortMode} />
+            </div>
           </section>
 
           <section>
@@ -229,11 +243,11 @@ function Dashboard() {
 
           <section>
             <h2 className="mb-4 text-2xl font-bold text-[#212121]">All Team Members</h2>
-            {filteredMembers.length === 0 ? (
+            {displayedMembers.length === 0 ? (
               <p className="text-sm text-[#666666]">No team members match current filters.</p>
             ) : (
               <div className="grid gap-4 lg:grid-cols-3">
-                {filteredMembers.map((member) => (
+                {displayedMembers.map((member) => (
                   <MemberCard
                     key={member._id}
                     member={member}
